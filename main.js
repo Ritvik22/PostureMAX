@@ -203,8 +203,8 @@ class SpynApp {
         const primaryDisplay = screen.getPrimaryDisplay();
         const { width, height } = primaryDisplay.workAreaSize;
 
-        // Camera window - smaller, positioned in top-right
-        this.cameraWindow = new BrowserWindow({
+        // Normal camera window
+        const windowConfig = {
             width: 320,
             height: 240,
             minWidth: 280,
@@ -215,29 +215,44 @@ class SpynApp {
                 nodeIntegration: true,
                 contextIsolation: false
             },
-            frame: true, // Keep frame for camera window
+            frame: true,
             resizable: true,
-            alwaysOnTop: true, // Always on top
-            skipTaskbar: false, // Show in taskbar
+            alwaysOnTop: true,
+            skipTaskbar: false,
             transparent: false,
             show: false,
             backgroundColor: '#000000',
-            x: width - 340, // Position in top-right
+            x: width - 340,
             y: 20,
             opacity: 1.0,
             title: 'Spyn Camera'
-        });
+        };
+
+        this.cameraWindow = new BrowserWindow(windowConfig);
 
         // Load camera HTML
         this.cameraWindow.loadFile('camera.html');
 
-        // Show when ready
+        // Keep camera window hidden initially but mark as active
         this.cameraWindow.once('ready-to-show', () => {
-            this.cameraWindow.show();
-            this.isCameraVisible = true;
+            // Don't show the camera window initially - it will be shown when camera mode is selected
+            this.isCameraVisible = false;
+            console.log('Camera window created and ready (hidden)');
         });
 
-        // Handle camera window closed
+        // Prevent camera window from closing when monitoring is active
+        this.cameraWindow.on('close', (event) => {
+            if (this.isMonitoring) {
+                // Prevent the window from actually closing
+                event.preventDefault();
+                // Just hide it instead
+                this.cameraWindow.hide();
+                this.isCameraVisible = false;
+                console.log('Camera window hidden instead of closed (monitoring active)');
+            }
+        });
+
+        // Handle camera window closed (only when actually closed)
         this.cameraWindow.on('closed', () => {
             this.cameraWindow = null;
             this.isCameraVisible = false;
@@ -252,6 +267,9 @@ class SpynApp {
         this.isMonitoring = true;
         this.createOverlayWindow();
         
+        // Create camera window but keep it hidden initially
+        this.createCameraWindow();
+        
         // Send start signal to overlay
         if (this.overlayWindow) {
             this.overlayWindow.webContents.send('start-monitoring');
@@ -265,6 +283,13 @@ class SpynApp {
         if (this.topLevelInterval) {
             clearInterval(this.topLevelInterval);
             this.topLevelInterval = null;
+        }
+        
+        // Close camera window when monitoring stops
+        if (this.cameraWindow && !this.cameraWindow.isDestroyed()) {
+            this.cameraWindow.close();
+            this.cameraWindow = null;
+            this.isCameraVisible = false;
         }
         
         if (this.overlayWindow) {
@@ -293,12 +318,47 @@ class SpynApp {
     }
 
     showCamera() {
-        this.createCameraWindow();
+        if (this.cameraWindow && !this.cameraWindow.isDestroyed()) {
+            // Camera window exists, show it in corner mode
+            this.showCameraInCorner();
+            this.isCameraVisible = true;
+        } else {
+            // Create new camera window and show it
+            this.createCameraWindow();
+            // Show it immediately after creation
+            setTimeout(() => {
+                if (this.cameraWindow && !this.cameraWindow.isDestroyed()) {
+                    this.showCameraInCorner();
+                    this.isCameraVisible = true;
+                }
+            }, 500);
+        }
     }
 
+    showCameraInCorner() {
+        if (this.cameraWindow && !this.cameraWindow.isDestroyed()) {
+            // Resize to corner window and position it
+            const primaryDisplay = screen.getPrimaryDisplay();
+            const { width, height } = primaryDisplay.workAreaSize;
+            
+            this.cameraWindow.setSize(320, 240);
+            this.cameraWindow.setPosition(width - 340, 20);
+            this.cameraWindow.setResizable(true);
+            this.cameraWindow.setFullScreen(false);
+            this.cameraWindow.setAlwaysOnTop(true, 'normal');
+            // Note: setFrame is not available in all Electron versions, removing it
+            
+            this.cameraWindow.show();
+            this.cameraWindow.focus();
+            console.log('Camera window shown in corner');
+        }
+    }
+
+
     hideCamera() {
-        if (this.cameraWindow) {
-            this.cameraWindow.close();
+        if (this.cameraWindow && !this.cameraWindow.isDestroyed()) {
+            this.cameraWindow.hide();
+            this.isCameraVisible = false;
         }
     }
 
@@ -501,6 +561,15 @@ class SpynApp {
 
         ipcMain.handle('hide-camera', () => {
             this.hideCamera();
+            return { success: true };
+        });
+
+
+        ipcMain.handle('detection-status', (event, status) => {
+            // Forward detection status to overlay window
+            if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+                this.overlayWindow.webContents.send('detection-status', status);
+            }
             return { success: true };
         });
 

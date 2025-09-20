@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spyn Overlay</title>
-    <link rel="stylesheet" href="overlay-styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -12,7 +12,6 @@
         <!-- Title Section -->
         <div class="overlay-section title-section">
             <span class="title-text">Spyn</span>
-            <span class="title-timer" id="titleTimer">00:00</span>
         </div>
 
         <!-- Timer Section -->
@@ -35,14 +34,11 @@
             <div class="percentage-label">Good</div>
         </div>
 
-        <!-- Mode Selector Section -->
-        <div class="overlay-section mode-section">
-            <select id="overlayMode" class="mode-selector">
-                <option value="" selected disabled>Select Choice</option>
-                <option value="camera">Camera</option>
-                <option value="status">Status</option>
-                <option value="percentage">Percentage</option>
-            </select>
+        <!-- Camera Toggle Section -->
+        <div class="overlay-section camera-section">
+            <button id="cameraToggleBtn" class="camera-toggle-btn" title="Toggle Camera Feed">
+                <span class="camera-text">CAMERA OFF</span>
+            </button>
         </div>
 
         <!-- Transparency Section -->
@@ -55,6 +51,6 @@
 
     </div>
 
-    <script src="overlay-script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
