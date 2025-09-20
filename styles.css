@@ -889,6 +889,11 @@ body {
 /* Timer Section */
 .timer-section {
     min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .timer {
@@ -896,6 +901,7 @@ body {
     font-weight: 700;
     color: #00bfff;
     line-height: 1;
+    margin: 0;
 }
 
 .session-label {
@@ -903,6 +909,7 @@ body {
     color: #888;
     margin-top: 0.3rem;
     font-weight: 500;
+    margin-bottom: 0;
 }
 
 /* Status Section */
