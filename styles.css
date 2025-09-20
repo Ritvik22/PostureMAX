@@ -909,7 +909,7 @@ body {
     color: #888;
     margin-top: 0.3rem;
     font-weight: 500;
-    margin-bottom: 0;
+    margin-bottom: -1.9rem;
 }
 
 /* Status Section */
@@ -926,6 +926,8 @@ body {
     background: rgba(0, 255, 0, 0.1);
     border: 1px solid rgba(0, 255, 0, 0.3);
     min-height: 32px;
+    margin-top: 1.2rem;
+    
 }
 
 .posture-status.bad {
