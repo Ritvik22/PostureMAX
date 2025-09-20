@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-class PostureMAXOverlay {
+class SpynOverlay {
     constructor() {
         this.isMonitoring = false;
         this.sessionStartTime = null;
@@ -13,6 +13,11 @@ class PostureMAXOverlay {
         this.initializeElements();
         this.bindEvents();
         this.setupIPC();
+        
+        // Start timer after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            this.startTimer();
+        }, 100);
     }
 
     initializeElements() {
@@ -32,6 +37,13 @@ class PostureMAXOverlay {
         
         // Container for state management
         this.container = document.querySelector('.overlay-container');
+        
+        // Debug element initialization
+        console.log('Elements initialized:', {
+            sessionTimer: !!this.sessionTimer,
+            titleTimer: !!this.titleTimer,
+            postureStatus: !!this.postureStatus
+        });
     }
 
     bindEvents() {
@@ -66,7 +78,7 @@ class PostureMAXOverlay {
         this.sessionStartTime = Date.now();
         this.postureData = [];
         
-        // Start timer
+        // Restart timer with new start time
         this.startTimer();
         
         // Start posture simulation
@@ -90,18 +102,51 @@ class PostureMAXOverlay {
     }
 
     startTimer() {
+        // Clear any existing timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        // Ensure we have a start time
+        if (!this.sessionStartTime) {
+            this.sessionStartTime = Date.now();
+        }
+        
+        // Start the timer immediately
+        this.updateTimer();
+        
         this.timerInterval = setInterval(() => {
-            if (this.sessionStartTime) {
-                const elapsed = Date.now() - this.sessionStartTime;
-                const minutes = Math.floor(elapsed / 60000);
-                const seconds = Math.floor((elapsed % 60000) / 1000);
-                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Update timers
+            this.updateTimer();
+        }, 1000);
+        
+        console.log('Timer started with start time:', this.sessionStartTime);
+    }
+    
+    updateTimer() {
+        if (this.sessionStartTime) {
+            const elapsed = Date.now() - this.sessionStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Re-find elements in case they weren't available initially
+            if (!this.sessionTimer) {
+                this.sessionTimer = document.getElementById('sessionTimer');
+            }
+            if (!this.titleTimer) {
+                this.titleTimer = document.getElementById('titleTimer');
+            }
+            
+            // Update timers
+            if (this.sessionTimer) {
                 this.sessionTimer.textContent = timeString;
+            }
+            if (this.titleTimer) {
                 this.titleTimer.textContent = timeString;
             }
-        }, 1000);
+            
+            console.log('Timer updated:', timeString);
+        }
     }
 
     startPostureSimulation() {
@@ -188,15 +233,29 @@ class PostureMAXOverlay {
         switch (mode) {
             case 'camera':
                 console.log('Switched to camera feed mode');
-                // TODO: Implement camera feed display
+                this.showCamera();
                 break;
             case 'status':
                 console.log('Switched to status mode');
+                this.hideCamera();
                 break;
             case 'percentage':
                 console.log('Switched to percentage mode');
+                this.hideCamera();
                 break;
         }
+    }
+
+    showCamera() {
+        // Notify main process to show camera window
+        ipcRenderer.invoke('show-camera');
+        console.log('Camera window requested');
+    }
+
+    hideCamera() {
+        // Notify main process to hide camera window
+        ipcRenderer.invoke('hide-camera');
+        console.log('Camera window hide requested');
     }
 
     setTransparency(level) {
@@ -225,6 +284,6 @@ class PostureMAXOverlay {
 
 // Initialize the overlay when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const overlay = new PostureMAXOverlay();
-    console.log('PostureMAX Overlay initialized');
+    const overlay = new SpynOverlay();
+    console.log('Spyn Overlay initialized');
 });

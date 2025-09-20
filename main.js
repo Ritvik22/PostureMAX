@@ -1,12 +1,14 @@
 const { app, BrowserWindow, ipcMain, screen, globalShortcut } = require('electron');
 const path = require('path');
 
-class PostureMAXApp {
+class SpynApp {
     constructor() {
         this.mainWindow = null;
         this.overlayWindow = null;
+        this.cameraWindow = null;
         this.isMonitoring = false;
         this.isOverlayVisible = false;
+        this.isCameraVisible = false;
     }
 
     createMainWindow() {
@@ -25,7 +27,7 @@ class PostureMAXApp {
                 enableRemoteModule: true
             },
             titleBarStyle: 'hiddenInset',
-            title: 'PostureMAX',
+            title: 'Spyn',
             icon: path.join(__dirname, 'assets/icon.png'), // Optional: add app icon
             show: false, // Don't show until ready
             backgroundColor: '#0a0a0a'
@@ -125,6 +127,61 @@ class PostureMAXApp {
         };
     }
 
+    createCameraWindow() {
+        if (this.cameraWindow) {
+            this.cameraWindow.focus();
+            return;
+        }
+
+        // Get screen dimensions
+        const primaryDisplay = screen.getPrimaryDisplay();
+        const { width, height } = primaryDisplay.workAreaSize;
+
+        // Camera window - smaller, positioned in top-right
+        this.cameraWindow = new BrowserWindow({
+            width: 320,
+            height: 240,
+            minWidth: 280,
+            minHeight: 200,
+            maxWidth: 480,
+            maxHeight: 360,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false
+            },
+            frame: true, // Keep frame for camera window
+            resizable: true,
+            alwaysOnTop: true, // Always on top
+            skipTaskbar: false, // Show in taskbar
+            transparent: false,
+            show: false,
+            backgroundColor: '#000000',
+            x: width - 340, // Position in top-right
+            y: 20,
+            opacity: 1.0,
+            title: 'Spyn Camera'
+        });
+
+        // Load camera HTML
+        this.cameraWindow.loadFile('camera.html');
+
+        // Show when ready
+        this.cameraWindow.once('ready-to-show', () => {
+            this.cameraWindow.show();
+            this.isCameraVisible = true;
+        });
+
+        // Handle camera window closed
+        this.cameraWindow.on('closed', () => {
+            this.cameraWindow = null;
+            this.isCameraVisible = false;
+        });
+
+        // Make camera window draggable
+        this.cameraWindow.setMovable(true);
+        this.cameraWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+
     startMonitoring() {
         this.isMonitoring = true;
         this.createOverlayWindow();
@@ -156,6 +213,16 @@ class PostureMAXApp {
             }
         } else {
             this.createOverlayWindow();
+        }
+    }
+
+    showCamera() {
+        this.createCameraWindow();
+    }
+
+    hideCamera() {
+        if (this.cameraWindow) {
+            this.cameraWindow.close();
         }
     }
 
@@ -240,6 +307,16 @@ class PostureMAXApp {
             return { success: true };
         });
 
+        ipcMain.handle('show-camera', () => {
+            this.showCamera();
+            return { success: true };
+        });
+
+        ipcMain.handle('hide-camera', () => {
+            this.hideCamera();
+            return { success: true };
+        });
+
         ipcMain.handle('get-app-version', () => {
             return app.getVersion();
         });
@@ -247,17 +324,17 @@ class PostureMAXApp {
 }
 
 // Create app instance
-const postureApp = new PostureMAXApp();
+const spynApp = new SpynApp();
 
 // App event handlers
 app.whenReady().then(() => {
-    postureApp.createMainWindow();
-    postureApp.setupIPC();
-    postureApp.setupGlobalShortcuts();
+    spynApp.createMainWindow();
+    spynApp.setupIPC();
+    spynApp.setupGlobalShortcuts();
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
-            postureApp.createMainWindow();
+            spynApp.createMainWindow();
         }
     });
 });
@@ -282,5 +359,5 @@ app.on('web-contents-created', (event, contents) => {
 
 // Export for potential use in renderer
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = postureApp;
+    module.exports = spynApp;
 }

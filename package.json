@@ -1,7 +1,7 @@
 {
-  "name": "posturemax",
+  "name": "spyn",
   "version": "1.0.0",
-  "description": "PostureMAX - Desktop Posture Correction App",
+  "description": "Spyn - Desktop Posture Correction App",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -16,15 +16,15 @@
     "electron",
     "monitoring"
   ],
-  "author": "PostureMAX Team",
+  "author": "Spyn Team",
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.6.4"
   },
   "build": {
-    "appId": "com.posturemax.app",
-    "productName": "PostureMAX",
+    "appId": "com.spyn.app",
+    "productName": "Spyn",
     "directories": {
       "output": "dist"
     },

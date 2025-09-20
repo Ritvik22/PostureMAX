@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-class PostureMAX {
+class Spyn {
     constructor() {
         this.isMonitoring = false;
         this.sessionStartTime = null;
@@ -72,14 +72,14 @@ class PostureMAX {
         // Notify main process to start monitoring
         ipcRenderer.invoke('start-monitoring');
         
-        console.log('PostureMAX monitoring started');
+        console.log('Spyn monitoring started');
     }
 
     stopMonitoring() {
         this.isMonitoring = false;
         
         // Update UI
-        this.startBtn.innerHTML = '<span class="btn-icon">▶</span>Start PostureMAX Monitoring';
+        this.startBtn.innerHTML = '<span class="btn-icon">▶</span>Start Spyn Monitoring';
         this.startBtn.style.background = 'linear-gradient(135deg, #00bfff, #0099cc)';
         this.startBtn.style.boxShadow = '0 8px 32px rgba(0, 191, 255, 0.3)';
         
@@ -92,7 +92,7 @@ class PostureMAX {
         // Notify main process to stop monitoring
         ipcRenderer.invoke('stop-monitoring');
         
-        console.log('PostureMAX monitoring stopped');
+        console.log('Spyn monitoring stopped');
     }
 
     startTimer() {
@@ -248,6 +248,6 @@ class PostureMAX {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new PostureMAX();
-    console.log('PostureMAX initialized');
+    const app = new Spyn();
+    console.log('Spyn initialized');
 });
