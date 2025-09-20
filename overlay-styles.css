@@ -1,0 +1,288 @@
+/* Horizontal Overlay Bar Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: transparent;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+}
+
+.overlay-container {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(42, 42, 42, 0.95));
+    border-radius: 12px;
+    border: 1px solid #00bfff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 191, 255, 0.3);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0 1.5rem;
+    gap: 2rem;
+    cursor: move;
+    -webkit-app-region: drag;
+}
+
+/* Overlay Sections */
+.overlay-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+/* Title Section */
+.title-section {
+    min-width: 160px;
+    gap: 0.5rem;
+}
+
+.title-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #00bfff;
+}
+
+.title-timer {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #888;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Timer Section */
+.timer-section {
+    min-width: 90px;
+}
+
+.timer {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #00bfff;
+    line-height: 1;
+}
+
+.session-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+/* Status Section */
+.status-section {
+    min-width: 90px;
+}
+
+.posture-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.posture-status.bad {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.status-icon {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.posture-status.good .status-icon {
+    color: #00ff00;
+}
+
+.posture-status.bad .status-icon {
+    color: #ff4444;
+}
+
+.status-text {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* Percentage Section */
+.percentage-section {
+    min-width: 80px;
+}
+
+.percentage-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00bfff;
+    line-height: 1;
+}
+
+.percentage-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+/* Mode Section */
+.mode-section {
+    min-width: 110px;
+}
+
+.mode-selector {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.7rem;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+}
+
+.mode-selector:focus {
+    outline: none;
+    border-color: #00bfff;
+    box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
+}
+
+/* Transparency Section */
+.transparency-section {
+    min-width: 110px;
+}
+
+.transparency-buttons {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.transparency-btn {
+    flex: 1;
+    padding: 0.3rem 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-app-region: no-drag;
+}
+
+.transparency-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.transparency-btn.active {
+    background: rgba(0, 191, 255, 0.3);
+    border-color: #00bfff;
+    color: #00bfff;
+}
+
+/* Close Section */
+.close-section {
+    min-width: 40px;
+}
+
+.control-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-app-region: no-drag;
+}
+
+.control-btn:hover {
+    background: rgba(255, 68, 68, 0.3);
+    border-color: rgba(255, 68, 68, 0.5);
+    transform: scale(1.05);
+}
+
+/* Bad posture state */
+.bad-posture {
+    background: linear-gradient(135deg, #ff4444, #cc0000) !important;
+    animation: pulse 2s infinite;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10000 !important;
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Transparency states */
+.transparent {
+    opacity: 0.3;
+}
+
+.visible {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+    .overlay-container {
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .title-section {
+        min-width: 140px;
+    }
+    
+    .mode-section {
+        min-width: 90px;
+    }
+    
+    .transparency-section {
+        min-width: 90px;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 191, 255, 0.5);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 191, 255, 0.7);
+}

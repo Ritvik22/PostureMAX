@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostureMAX Overlay</title>
+    <link rel="stylesheet" href="overlay-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay-container">
+        <!-- Title Section -->
+        <div class="overlay-section title-section">
+            <span class="title-text">PostureMAX</span>
+            <span class="title-timer" id="titleTimer">00:00</span>
+        </div>
+
+        <!-- Timer Section -->
+        <div class="overlay-section timer-section">
+            <div class="timer" id="sessionTimer">00:00</div>
+            <div class="session-label">Session</div>
+        </div>
+
+        <!-- Status Section -->
+        <div class="overlay-section status-section">
+            <div id="postureStatus" class="posture-status good">
+                <div class="status-icon">✓</div>
+                <div class="status-text">Good</div>
+            </div>
+        </div>
+
+        <!-- Percentage Section -->
+        <div class="overlay-section percentage-section">
+            <div class="percentage-value" id="posturePercentage">85%</div>
+            <div class="percentage-label">Good</div>
+        </div>
+
+        <!-- Mode Selector Section -->
+        <div class="overlay-section mode-section">
+            <select id="overlayMode" class="mode-selector">
+                <option value="camera">Camera</option>
+                <option value="status">Status</option>
+                <option value="percentage">Percentage</option>
+            </select>
+        </div>
+
+        <!-- Transparency Section -->
+        <div class="overlay-section transparency-section">
+            <div class="transparency-buttons">
+                <button id="transparentBtn" class="transparency-btn" data-level="transparent">Semi</button>
+                <button id="visibleBtn" class="transparency-btn active" data-level="visible">Full</button>
+            </div>
+        </div>
+
+        <!-- Close Button -->
+        <div class="overlay-section close-section">
+            <button id="closeBtn" class="control-btn">×</button>
+        </div>
+    </div>
+
+    <script src="overlay-script.js"></script>
+</body>
+</html>
