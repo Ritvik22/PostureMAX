@@ -18,6 +18,13 @@ body {
     pointer-events: auto;
     -webkit-user-select: none;
     -webkit-app-region: drag;
+    /* Ensure body stays on top */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2147483647;
 }
 
 .overlay-container {
@@ -31,7 +38,9 @@ body {
     display: flex;
     align-items: center;
     transition: all 0.3s ease;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     padding: 0 1.5rem;
     gap: 2rem;
     cursor: move;
@@ -40,10 +49,12 @@ body {
     z-index: 2147483647; /* Maximum z-index */
     pointer-events: auto;
     /* Additional properties for maximum visibility */
-    position: fixed;
-    top: 0;
-    left: 0;
     will-change: transform;
+    /* Force hardware acceleration for better performance */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Ensure it appears above all other elements */
+    isolation: isolate;
 }
 
 /* Overlay Sections */
@@ -206,33 +217,6 @@ body {
     color: #00bfff;
 }
 
-/* Close Section */
-.close-section {
-    min-width: 40px;
-}
-
-.control-btn {
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    -webkit-app-region: no-drag;
-}
-
-.control-btn:hover {
-    background: rgba(255, 68, 68, 0.3);
-    border-color: rgba(255, 68, 68, 0.5);
-    transform: scale(1.05);
-}
 
 /* Bad posture state */
 .bad-posture {
@@ -242,7 +226,19 @@ body {
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    z-index: 10000 !important;
+    z-index: 2147483647 !important;
+}
+
+/* Ensure overlay stays above all other elements */
+.overlay-container * {
+    position: relative;
+    z-index: inherit;
+}
+
+/* Prevent any child elements from interfering with layering */
+.overlay-section {
+    position: relative;
+    z-index: inherit;
 }
 
 @keyframes pulse {

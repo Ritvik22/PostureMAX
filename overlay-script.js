@@ -7,7 +7,7 @@ class SpynOverlay {
         this.timerInterval = null;
         this.postureData = [];
         this.isGoodPosture = true;
-        this.overlayMode = 'status';
+        this.overlayMode = '';
         this.transparencyLevel = 'visible';
         
         this.initializeElements();
@@ -26,7 +26,6 @@ class SpynOverlay {
         this.postureStatus = document.getElementById('postureStatus');
         this.overlayMode = document.getElementById('overlayMode');
         this.posturePercentage = document.getElementById('posturePercentage');
-        this.closeBtn = document.getElementById('closeBtn');
         
         // Title timer
         this.titleTimer = document.getElementById('titleTimer');
@@ -48,7 +47,6 @@ class SpynOverlay {
 
     bindEvents() {
         // Overlay events
-        this.closeBtn.addEventListener('click', () => this.closeOverlay());
         this.overlayMode.addEventListener('change', (e) => this.changeOverlayMode(e.target.value));
         
         // Transparency controls
@@ -99,6 +97,11 @@ class SpynOverlay {
         }
         
         console.log('Overlay: Monitoring stopped');
+        
+        // Close the overlay window
+        setTimeout(() => {
+            window.close();
+        }, 1000); // Give a brief moment to show final stats
     }
 
     startTimer() {
@@ -228,6 +231,12 @@ class SpynOverlay {
         this.overlayMode = mode;
         
         switch (mode) {
+            case '':
+            case null:
+            case undefined:
+                console.log('No mode selected');
+                this.hideCamera();
+                break;
             case 'camera':
                 console.log('Switched to camera feed mode');
                 this.showCamera();
@@ -272,11 +281,6 @@ class SpynOverlay {
 
 
 
-    closeOverlay() {
-        // Notify main process to stop monitoring and close overlay
-        ipcRenderer.invoke('stop-monitoring');
-        window.close();
-    }
 }
 
 // Initialize the overlay when DOM is loaded

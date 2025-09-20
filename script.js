@@ -23,6 +23,18 @@ class Spyn {
         this.startBtn = document.getElementById('startMonitoringBtn');
         this.postureReport = document.getElementById('postureReport');
         
+        // Exercise elements
+        this.startExerciseBtn = document.getElementById('startExerciseBtn');
+        this.exerciseAnalysis = document.getElementById('exerciseAnalysis');
+        
+        // Modal elements
+        this.shortcutsBtn = document.getElementById('shortcutsBtn');
+        this.shortcutsModal = document.getElementById('shortcutsModal');
+        this.closeModalBtn = document.getElementById('closeModalBtn');
+        
+        // Sign-out element
+        this.signoutBtn = document.getElementById('signoutBtn');
+        
         // Report elements
         this.overallScore = document.getElementById('overallScore');
         this.sessionDuration = document.getElementById('sessionDuration');
@@ -33,6 +45,69 @@ class Spyn {
     bindEvents() {
         // Dashboard events
         this.startBtn.addEventListener('click', () => this.toggleMonitoring());
+        
+        // Exercise events
+        if (this.startExerciseBtn) {
+            this.startExerciseBtn.addEventListener('click', () => this.startExerciseAnalysis());
+        }
+        
+        // Tab switching events
+        this.initializeTabs();
+        
+        // Modal events
+        if (this.shortcutsBtn) {
+            this.shortcutsBtn.addEventListener('click', () => this.showShortcutsModal());
+        }
+        if (this.closeModalBtn) {
+            this.closeModalBtn.addEventListener('click', () => this.hideShortcutsModal());
+        }
+        if (this.shortcutsModal) {
+            this.shortcutsModal.addEventListener('click', (e) => {
+                if (e.target === this.shortcutsModal) {
+                    this.hideShortcutsModal();
+                }
+            });
+        }
+        if (this.signoutBtn) {
+            this.signoutBtn.addEventListener('click', () => this.handleSignOut());
+        }
+        
+        // Keyboard shortcuts
+        this.initializeKeyboardShortcuts();
+    }
+
+    initializeTabs() {
+        // Get tab buttons and panes
+        this.tabButtons = document.querySelectorAll('.tab-btn');
+        this.tabPanes = document.querySelectorAll('.tab-pane');
+        
+        // Add click event listeners to tab buttons
+        this.tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetTab = e.target.getAttribute('data-tab');
+                this.switchTab(targetTab);
+            });
+        });
+    }
+
+    switchTab(tabName) {
+        // Remove active class from all tabs and panes
+        this.tabButtons.forEach(btn => btn.classList.remove('active'));
+        this.tabPanes.forEach(pane => pane.classList.remove('active'));
+        
+        // Add active class to selected tab and pane
+        const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+        const activePane = document.getElementById(`${tabName}-tab`);
+        
+        if (activeButton && activePane) {
+            activeButton.classList.add('active');
+            activePane.classList.add('active');
+            
+            // If switching to exercise tab, close the overlay
+            if (tabName === 'exercise' && this.isMonitoring) {
+                this.stopMonitoring();
+            }
+        }
     }
 
     setupIPC() {
@@ -242,6 +317,202 @@ class Spyn {
             const y = padding + (chartHeight / 4) * i;
             const value = 100 - (i * 25);
             ctx.fillText(`${value}%`, padding - 10, y + 4);
+        }
+    }
+
+    startExerciseAnalysis() {
+        // Show the exercise analysis section
+        if (this.exerciseAnalysis) {
+            this.exerciseAnalysis.classList.remove('hidden');
+            
+            // Update button text
+            if (this.startExerciseBtn) {
+                this.startExerciseBtn.textContent = '📹 Exercise Analysis Active';
+                this.startExerciseBtn.disabled = true;
+            }
+            
+            // Start exercise simulation
+            this.startExerciseSimulation();
+            
+            console.log('Exercise analysis started');
+        }
+    }
+
+    startExerciseSimulation() {
+        // Simulate exercise data updates
+        this.exerciseInterval = setInterval(() => {
+            // Update form score (simulate slight variations)
+            const formScore = document.getElementById('formScore');
+            if (formScore) {
+                const currentScore = parseInt(formScore.textContent);
+                const variation = Math.floor(Math.random() * 6) - 3; // -3 to +3
+                const newScore = Math.max(80, Math.min(100, currentScore + variation));
+                formScore.textContent = `${newScore}%`;
+            }
+            
+            // Update reps count
+            const repsCount = document.getElementById('repsCount');
+            if (repsCount) {
+                const currentReps = parseInt(repsCount.textContent);
+                repsCount.textContent = currentReps + 1;
+            }
+            
+            // Update corrections made
+            const correctionsMade = document.getElementById('correctionsMade');
+            if (correctionsMade && Math.random() > 0.7) { // 30% chance of correction
+                const currentCorrections = parseInt(correctionsMade.textContent);
+                correctionsMade.textContent = currentCorrections + 1;
+            }
+        }, 3000); // Update every 3 seconds
+    }
+
+    initializeKeyboardShortcuts() {
+        // Add keyboard event listener to document
+        document.addEventListener('keydown', (e) => {
+            // Prevent shortcuts from triggering in input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
+            // Handle shortcuts based on key combinations
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'm':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.toggleMonitoring();
+                        }
+                        break;
+                    case 'p':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.toggleOverlay();
+                        }
+                        break;
+                    case 't':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.setTransparency('transparent');
+                        }
+                        break;
+                    case 'f':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.setTransparency('visible');
+                        }
+                        break;
+                    case 'c':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.toggleCamera();
+                        }
+                        break;
+                    case 'o':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.centerOverlay();
+                        }
+                        break;
+                }
+            }
+
+            // Function key shortcuts
+            switch (e.key) {
+                case 'F9':
+                    e.preventDefault();
+                    this.toggleMonitoring();
+                    break;
+                case 'F10':
+                    e.preventDefault();
+                    this.toggleOverlay();
+                    break;
+                case 'F11':
+                    e.preventDefault();
+                    this.toggleCamera();
+                    break;
+                case 'F1':
+                    e.preventDefault();
+                    this.setTransparency('visible');
+                    break;
+                case 'F2':
+                    e.preventDefault();
+                    this.setTransparency('transparent');
+                    break;
+                case 'F3':
+                    e.preventDefault();
+                    this.switchTab('posture');
+                    break;
+                case 'F4':
+                    e.preventDefault();
+                    this.switchTab('exercise');
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    if (this.shortcutsModal && !this.shortcutsModal.classList.contains('hidden')) {
+                        this.hideShortcutsModal();
+                    } else if (this.isMonitoring) {
+                        this.stopMonitoring();
+                    }
+                    break;
+                case 'F12':
+                    e.preventDefault();
+                    this.toggleShortcutsModal();
+                    break;
+            }
+        });
+
+        console.log('Keyboard shortcuts initialized');
+    }
+
+    toggleOverlay() {
+        ipcRenderer.invoke('toggle-overlay');
+    }
+
+    setTransparency(level) {
+        ipcRenderer.invoke('set-transparency', level);
+    }
+
+    toggleCamera() {
+        ipcRenderer.invoke('show-camera');
+    }
+
+    centerOverlay() {
+        ipcRenderer.invoke('center-overlay');
+    }
+
+    showShortcutsModal() {
+        if (this.shortcutsModal) {
+            this.shortcutsModal.classList.remove('hidden');
+        }
+    }
+
+    hideShortcutsModal() {
+        if (this.shortcutsModal) {
+            this.shortcutsModal.classList.add('hidden');
+        }
+    }
+
+    toggleShortcutsModal() {
+        if (this.shortcutsModal) {
+            if (this.shortcutsModal.classList.contains('hidden')) {
+                this.showShortcutsModal();
+            } else {
+                this.hideShortcutsModal();
+            }
+        }
+    }
+
+    handleSignOut() {
+        // Stop monitoring if active
+        if (this.isMonitoring) {
+            this.stopMonitoring();
+        }
+        
+        // Show confirmation message
+        const confirmation = confirm('Are you sure you want to sign out?');
+        if (confirmation) {
+            // Navigate to sign-in page
+            ipcRenderer.send('navigate-to-signin');
         }
     }
 }

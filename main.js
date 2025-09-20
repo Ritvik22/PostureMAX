@@ -34,8 +34,8 @@ class SpynApp {
             backgroundColor: '#0a0a0a'
         });
 
-        // Load the main HTML file
-        this.mainWindow.loadFile('index.html');
+        // Load the sign-in page first
+        this.mainWindow.loadFile('signin.html');
 
         // Show window when ready
         this.mainWindow.once('ready-to-show', () => {
@@ -110,7 +110,13 @@ class SpynApp {
             acceptFirstMouse: true, // Allow clicking through
             // macOS specific properties to prevent desktop switching
             visibleOnAllWorkspaces: true, // Show on all desktop spaces
-            fullscreenable: false // Prevent fullscreen mode
+            fullscreenable: false, // Prevent fullscreen mode
+            // Additional properties to prevent focus stealing
+            showInactive: true, // Don't activate when shown
+            disableAutoHideCursor: true, // Don't hide cursor
+            // Prevent window from becoming active
+            alwaysOnTop: true,
+            skipTaskbar: true
         });
 
         // Load overlay HTML
@@ -127,6 +133,21 @@ class SpynApp {
                 // Re-enforce highest window level periodically
                 this.enforceTopLevel();
             }
+            
+            // Ensure always on top is properly set
+            this.ensureAlwaysOnTop();
+        });
+
+        // Prevent focus stealing when overlay is clicked
+        this.overlayWindow.on('focus', () => {
+            // Immediately blur the overlay window to prevent focus stealing
+            this.overlayWindow.blur();
+        });
+
+        // Prevent activation when clicked
+        this.overlayWindow.on('activate', () => {
+            // Don't allow the overlay to become active
+            this.overlayWindow.blur();
         });
 
         // Handle overlay closed
@@ -151,24 +172,13 @@ class SpynApp {
 
         // Make overlay draggable and set highest window level
         this.overlayWindow.setMovable(true);
-        this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
         
         // Set window level for maximum visibility above fullscreen apps
         if (process.platform === 'darwin') {
             // On macOS, use the highest possible level to appear above fullscreen
             this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
-            // Try multiple high levels to ensure it appears above everything
-            this.overlayWindow.setAlwaysOnTop(true, 'overlay');
-            this.overlayWindow.setAlwaysOnTop(true, 'pop-up-menu');
-            this.overlayWindow.setAlwaysOnTop(true, 'status');
-            this.overlayWindow.setAlwaysOnTop(true, 'main-menu');
-            this.overlayWindow.setAlwaysOnTop(true, 'modal-panel');
-            this.overlayWindow.setAlwaysOnTop(true, 'torn-off-menu');
-            this.overlayWindow.setAlwaysOnTop(true, 'floating');
             // Ensure it appears on all workspaces and during fullscreen
             this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-            // Additional settings to prevent desktop switching
-            this.overlayWindow.setVisibleOnAllWorkspaces(true);
         } else if (process.platform === 'win32') {
             // On Windows, use screen-saver level
             this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
@@ -275,6 +285,10 @@ class SpynApp {
             }
         } else {
             this.createOverlayWindow();
+            // Ensure always on top is set when creating overlay
+            setTimeout(() => {
+                this.ensureAlwaysOnTop();
+            }, 100);
         }
     }
 
@@ -302,27 +316,57 @@ class SpynApp {
     }
 
     enforceTopLevel() {
-        if (this.overlayWindow && process.platform === 'darwin') {
+        if (this.overlayWindow) {
             // Continuously enforce the highest window level
             const enforceLevels = () => {
                 if (this.overlayWindow && this.isOverlayVisible) {
+                    // Use screen-saver level for maximum visibility above fullscreen apps
                     this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
-                    this.overlayWindow.setAlwaysOnTop(true, 'overlay');
-                    this.overlayWindow.setAlwaysOnTop(true, 'pop-up-menu');
-                    this.overlayWindow.setAlwaysOnTop(true, 'status');
-                    this.overlayWindow.setAlwaysOnTop(true, 'main-menu');
-                    this.overlayWindow.setAlwaysOnTop(true, 'modal-panel');
-                    this.overlayWindow.setAlwaysOnTop(true, 'torn-off-menu');
-                    this.overlayWindow.setAlwaysOnTop(true, 'floating');
-                    this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+                    
+                    // Platform-specific enforcement
+                    if (process.platform === 'darwin') {
+                        // Ensure it appears on all workspaces and during fullscreen
+                        this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+                    }
+                    
+                    // Ensure focus prevention
+                    this.overlayWindow.setFocusable(false);
+                    this.overlayWindow.setSkipTaskbar(true);
                 }
             };
             
             // Enforce immediately
             enforceLevels();
             
-            // Set up periodic enforcement every 2 seconds
+            // Set up periodic enforcement every 2 seconds to maintain top level
             this.topLevelInterval = setInterval(enforceLevels, 2000);
+        }
+    }
+
+    ensureAlwaysOnTop() {
+        if (this.overlayWindow) {
+            // Set always on top with the highest possible level
+            this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            
+            // Platform-specific optimizations
+            if (process.platform === 'darwin') {
+                // On macOS, ensure visibility on all workspaces including fullscreen
+                this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+                // Set the highest possible window level
+                this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            } else if (process.platform === 'win32') {
+                // On Windows, use screen-saver level for maximum visibility
+                this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            } else {
+                // On Linux, use screen-saver level
+                this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            }
+            
+            // Additional properties for maximum visibility
+            this.overlayWindow.setSkipTaskbar(true);
+            this.overlayWindow.setFocusable(false);
+            
+            console.log('Overlay window configured for always on top');
         }
     }
 
@@ -359,6 +403,61 @@ class SpynApp {
                 this.startMonitoring();
             }
         });
+
+        // Transparency shortcuts
+        globalShortcut.register('CommandOrControl+Shift+T', () => {
+            this.setOverlayTransparency('transparent');
+        });
+
+        globalShortcut.register('CommandOrControl+Shift+F', () => {
+            this.setOverlayTransparency('visible');
+        });
+
+        // Camera shortcuts
+        globalShortcut.register('CommandOrControl+Shift+C', () => {
+            if (this.isCameraVisible) {
+                this.hideCamera();
+            } else {
+                this.showCamera();
+            }
+        });
+
+        // Overlay positioning shortcuts
+        globalShortcut.register('CommandOrControl+Shift+O', () => {
+            this.centerOverlay();
+        });
+
+        // Quick start/stop shortcuts (single key combinations)
+        globalShortcut.register('F9', () => {
+            if (this.isMonitoring) {
+                this.stopMonitoring();
+            } else {
+                this.startMonitoring();
+            }
+        });
+
+        globalShortcut.register('F10', () => {
+            this.toggleOverlay();
+        });
+
+        globalShortcut.register('F11', () => {
+            if (this.isCameraVisible) {
+                this.hideCamera();
+            } else {
+                this.showCamera();
+            }
+        });
+
+        // Function key shortcuts for transparency
+        globalShortcut.register('F1', () => {
+            this.setOverlayTransparency('visible');
+        });
+
+        globalShortcut.register('F2', () => {
+            this.setOverlayTransparency('transparent');
+        });
+
+        console.log('Global shortcuts registered successfully');
     }
 
     setupIPC() {
@@ -407,6 +506,19 @@ class SpynApp {
 
         ipcMain.handle('get-app-version', () => {
             return app.getVersion();
+        });
+
+        // Navigation handlers
+        ipcMain.on('navigate-to-main', () => {
+            if (this.mainWindow) {
+                this.mainWindow.loadFile('index.html');
+            }
+        });
+
+        ipcMain.on('navigate-to-signin', () => {
+            if (this.mainWindow) {
+                this.mainWindow.loadFile('signin.html');
+            }
         });
     }
 }

@@ -49,6 +49,9 @@ body {
 .dashboard-header {
     padding: 2rem;
     border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .logo h1 {
@@ -73,7 +76,56 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: #00bfff;
+    background: rgba(0, 191, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: #00bfff;
+    border-bottom-color: #00bfff;
+    background: rgba(0, 191, 255, 0.1);
+}
+
+/* Tab Content */
+.tab-content {
+    width: 100%;
+    flex: 1;
+}
+
+.tab-pane {
+    display: none;
+    width: 100%;
+}
+
+.tab-pane.active {
+    display: block;
 }
 
 .hero-section {
@@ -392,6 +444,139 @@ body {
     opacity: 1;
 }
 
+/* Exercise Content Styles */
+.exercise-content {
+    width: 100%;
+    max-width: 1000px;
+}
+
+.exercise-info {
+    margin-bottom: 3rem;
+}
+
+.exercise-info h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #00bfff;
+}
+
+.exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.exercise-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.exercise-card:hover {
+    transform: translateY(-2px);
+    border-color: #00bfff;
+    box-shadow: 0 8px 32px rgba(0, 191, 255, 0.2);
+}
+
+.exercise-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.exercise-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.exercise-card p {
+    font-size: 0.9rem;
+    color: #888;
+    line-height: 1.4;
+}
+
+.exercise-analysis {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exercise-analysis h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: #00bfff;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.analysis-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.analysis-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00bfff;
+    margin-bottom: 0.5rem;
+}
+
+.analysis-label {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.camera-container {
+    margin-top: 2rem;
+}
+
+.camera-container h4 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.camera-placeholder {
+    width: 100%;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 2px dashed rgba(0, 191, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+}
+
+.camera-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.camera-placeholder p {
+    font-size: 1rem;
+    color: #888;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-header {
@@ -410,9 +595,230 @@ body {
         padding: 1rem;
     }
     
+    .tab-navigation {
+        margin-bottom: 1.5rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .exercise-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analysis-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
     .overlay {
         width: 250px;
         top: 20px;
         right: 20px;
+    }
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.help-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: #00bfff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.header-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.help-btn:hover {
+    background: rgba(0, 191, 255, 0.2);
+    border-color: #00bfff;
+    transform: scale(1.05);
+}
+
+.signout-btn {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: #ff4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.signout-btn:hover {
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff4444;
+    transform: scale(1.05);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    border: 1px solid #00bfff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 191, 255, 0.3);
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3);
+}
+
+.modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #00bfff;
+    margin: 0;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.shortcut-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.shortcut-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #00bfff;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcut-item:last-child {
+    border-bottom: none;
+}
+
+.shortcut-key {
+    background: rgba(0, 191, 255, 0.2);
+    border: 1px solid rgba(0, 191, 255, 0.4);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #00bfff;
+    font-family: 'Courier New', monospace;
+    min-width: 120px;
+    text-align: center;
+}
+
+.shortcut-desc {
+    color: #ccc;
+    font-size: 0.9rem;
+    font-weight: 400;
+    flex: 1;
+    margin-left: 1rem;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .shortcuts-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .shortcut-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .shortcut-desc {
+        margin-left: 0;
     }
 }
