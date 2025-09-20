@@ -199,20 +199,17 @@ class SpynOverlay {
     }
 
     handleBadPosture() {
-        // Center-lock overlay and make it solid
+        // Add visual indicator for bad posture without moving the window
         document.body.classList.add('bad-posture');
         
-        // Notify main process to center the window
-        ipcRenderer.send('center-overlay');
-        
-        console.log('Bad posture detected - overlay centered and locked');
+        console.log('Bad posture detected - visual indicator shown');
     }
 
     handleGoodPosture() {
-        // Remove center-lock
+        // Remove visual indicator for bad posture
         document.body.classList.remove('bad-posture');
         
-        console.log('Good posture restored - overlay unlocked');
+        console.log('Good posture restored - visual indicator removed');
     }
 
     calculateGoodPosturePercentage() {

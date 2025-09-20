@@ -9,6 +9,7 @@ class SpynApp {
         this.isMonitoring = false;
         this.isOverlayVisible = false;
         this.isCameraVisible = false;
+        this.topLevelInterval = null;
     }
 
     createMainWindow() {
@@ -99,7 +100,17 @@ class SpynApp {
             backgroundColor: '#00000000', // Transparent background
             x: Math.round((width - 800) / 2), // Center horizontally
             y: 50, // Position near top
-            opacity: 1.0
+            opacity: 1.0,
+            // Additional properties for true persistence
+            fullscreenable: false,
+            maximizable: false,
+            minimizable: false,
+            closable: true,
+            focusable: false, // Prevent focus stealing
+            acceptFirstMouse: true, // Allow clicking through
+            // macOS specific properties to prevent desktop switching
+            visibleOnAllWorkspaces: true, // Show on all desktop spaces
+            fullscreenable: false // Prevent fullscreen mode
         });
 
         // Load overlay HTML
@@ -109,17 +120,62 @@ class SpynApp {
         this.overlayWindow.once('ready-to-show', () => {
             this.overlayWindow.show();
             this.isOverlayVisible = true;
+            
+            // Ensure it stays on all workspaces and is visible during fullscreen
+            if (process.platform === 'darwin') {
+                this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+                // Re-enforce highest window level periodically
+                this.enforceTopLevel();
+            }
         });
 
         // Handle overlay closed
         this.overlayWindow.on('closed', () => {
             this.overlayWindow = null;
             this.isOverlayVisible = false;
+            
+            // Clear top level enforcement interval
+            if (this.topLevelInterval) {
+                clearInterval(this.topLevelInterval);
+                this.topLevelInterval = null;
+            }
         });
 
-        // Make overlay draggable
+        // Prevent window from being moved to different desktop spaces
+        this.overlayWindow.on('move', () => {
+            if (process.platform === 'darwin') {
+                // Re-enforce visibility on all workspaces when moved
+                this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+            }
+        });
+
+        // Make overlay draggable and set highest window level
         this.overlayWindow.setMovable(true);
         this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+        
+        // Set window level for maximum visibility above fullscreen apps
+        if (process.platform === 'darwin') {
+            // On macOS, use the highest possible level to appear above fullscreen
+            this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            // Try multiple high levels to ensure it appears above everything
+            this.overlayWindow.setAlwaysOnTop(true, 'overlay');
+            this.overlayWindow.setAlwaysOnTop(true, 'pop-up-menu');
+            this.overlayWindow.setAlwaysOnTop(true, 'status');
+            this.overlayWindow.setAlwaysOnTop(true, 'main-menu');
+            this.overlayWindow.setAlwaysOnTop(true, 'modal-panel');
+            this.overlayWindow.setAlwaysOnTop(true, 'torn-off-menu');
+            this.overlayWindow.setAlwaysOnTop(true, 'floating');
+            // Ensure it appears on all workspaces and during fullscreen
+            this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+            // Additional settings to prevent desktop switching
+            this.overlayWindow.setVisibleOnAllWorkspaces(true);
+        } else if (process.platform === 'win32') {
+            // On Windows, use screen-saver level
+            this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+        } else {
+            // On Linux, use screen-saver level
+            this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+        }
 
         // Store initial state
         this.overlayState = {
@@ -195,6 +251,12 @@ class SpynApp {
     stopMonitoring() {
         this.isMonitoring = false;
         
+        // Clear top level enforcement interval
+        if (this.topLevelInterval) {
+            clearInterval(this.topLevelInterval);
+            this.topLevelInterval = null;
+        }
+        
         if (this.overlayWindow) {
             this.overlayWindow.webContents.send('stop-monitoring');
             // Close overlay after a short delay to show final stats
@@ -238,6 +300,32 @@ class SpynApp {
             this.overlayWindow.setPosition(x, y);
         }
     }
+
+    enforceTopLevel() {
+        if (this.overlayWindow && process.platform === 'darwin') {
+            // Continuously enforce the highest window level
+            const enforceLevels = () => {
+                if (this.overlayWindow && this.isOverlayVisible) {
+                    this.overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+                    this.overlayWindow.setAlwaysOnTop(true, 'overlay');
+                    this.overlayWindow.setAlwaysOnTop(true, 'pop-up-menu');
+                    this.overlayWindow.setAlwaysOnTop(true, 'status');
+                    this.overlayWindow.setAlwaysOnTop(true, 'main-menu');
+                    this.overlayWindow.setAlwaysOnTop(true, 'modal-panel');
+                    this.overlayWindow.setAlwaysOnTop(true, 'torn-off-menu');
+                    this.overlayWindow.setAlwaysOnTop(true, 'floating');
+                    this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+                }
+            };
+            
+            // Enforce immediately
+            enforceLevels();
+            
+            // Set up periodic enforcement every 2 seconds
+            this.topLevelInterval = setInterval(enforceLevels, 2000);
+        }
+    }
+
 
 
 

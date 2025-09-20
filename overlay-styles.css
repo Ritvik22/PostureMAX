@@ -14,6 +14,10 @@ body {
     user-select: none;
     margin: 0;
     padding: 0;
+    /* Ensure overlay doesn't interfere with other apps */
+    pointer-events: auto;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
 }
 
 .overlay-container {
@@ -32,6 +36,14 @@ body {
     gap: 2rem;
     cursor: move;
     -webkit-app-region: drag;
+    /* Ensure overlay stays on top and is interactive */
+    z-index: 2147483647; /* Maximum z-index */
+    pointer-events: auto;
+    /* Additional properties for maximum visibility */
+    position: fixed;
+    top: 0;
+    left: 0;
+    will-change: transform;
 }
 
 /* Overlay Sections */
