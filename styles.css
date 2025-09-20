@@ -966,7 +966,7 @@ body {
 .percentage-label {
     font-size: 0.75rem;
     color: #888;
-    margin-top: 0.3rem;
+    margin-top: -0.2rem;
     font-weight: 500;
 }
 
@@ -1136,6 +1136,13 @@ body {
 
 /* ===== SIGN-IN STYLES ===== */
 /* Sign-in Page Styles */
+/* Override body overflow for sign-in page */
+body.signin-page {
+    overflow: auto;
+    height: auto;
+    min-height: 100vh;
+}
+
 .signin-container {
     min-height: 100vh;
     display: flex;
@@ -1143,7 +1150,7 @@ body {
     justify-content: center;
     padding: 2rem;
     position: relative;
-    overflow-y: auto;
+    overflow-y: visible;
 }
 
 .signin-card {
@@ -1572,6 +1579,8 @@ body {
         padding: 1rem;
         align-items: flex-start;
         padding-top: 2rem;
+        min-height: 100vh;
+        justify-content: flex-start;
     }
     
     .signin-card {
